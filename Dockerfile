@@ -18,7 +18,7 @@ COPY . .
 # Генерируем Prisma Client
 RUN npx prisma generate
 
-RUN pnpm run build
+RUN pnpm build
 
 # Открываем порт, на котором будет работать приложение
 EXPOSE 3000
