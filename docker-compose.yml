@@ -1,0 +1,28 @@
+version: "3.9"
+
+networks:
+  my-network:
+
+services:
+  my-first-docker:
+    build:
+      context: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@192.168.0.122:5432/test-docker-nest?schema=public
+    depends_on:
+      - db
+    networks:
+      - my-network
+    container_name: my-nest-app
+
+  db:
+    image: postgres
+    environment:
+      POSTGRES_DB: test-docker-nest
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - my-network
+    container_name: my-postgres-db
