@@ -15,7 +15,7 @@ model Cashier {
   first_name String
   last_name  String
   patronymic String
-  iin        String
+  iin        String            @unique
   status     EnumCashierStatus @default(INACTIVE)
   createdAt  DateTime          @default(now()) @map("created_at")
   updatedAt  DateTime          @updatedAt @map("updated_at")

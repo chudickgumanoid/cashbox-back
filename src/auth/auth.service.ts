@@ -10,17 +10,21 @@ import { PrismaService } from "./../prisma.service";
 import { AuthRegisterDto } from "./dto/auth-register.dto";
 import { AuthLoginDto } from "./dto/auth-login.dto";
 import { returnCashierFields } from "./return-cashier-object";
+import { MailService } from "src/mail/mail.service";
+import { randomPassword } from "src/helper/randomPassword";
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
-    private jwt: JwtService
+    private jwt: JwtService,
+    private mail: MailService
   ) {}
 
   async login(dto: AuthLoginDto) {
     const cashier = await this.validateCashier(dto);
     const token = await this.issueTokens(cashier.id);
+    // await this.mail.sendCashierPassword(cashier);
 
     return {
       cashier: returnCashierFields(cashier),
@@ -29,9 +33,12 @@ export class AuthService {
   }
 
   async register(dto: AuthRegisterDto) {
-    await this.isExistsCashier(dto.email, dto.login);
+    await this.isExistsCashier(dto.email, dto.login, dto.iin);
 
-    const cashier = await this.createCashier(dto);
+    const password: string = randomPassword(16);
+    const cashier = await this.createCashier(dto, password);
+
+    await this.mail.sendCashierPassword(cashier, password);
 
     const token = await this.issueTokens(cashier.id);
 
@@ -41,8 +48,8 @@ export class AuthService {
     };
   }
 
-  private async createCashier(dto: AuthRegisterDto) {
-    return this.prisma.cashier.create({
+  private async createCashier(dto: AuthRegisterDto, password: string) {
+    return await this.prisma.cashier.create({
       data: {
         first_name: dto.first_name,
         last_name: dto.last_name,
@@ -51,12 +58,12 @@ export class AuthService {
         iin: dto.iin,
         email: dto.email,
         status: "INACTIVE",
-        password: await argon2.hash(dto.password),
+        password: await argon2.hash(password),
       },
     });
   }
 
-  private async isExistsCashier(email: string, login: string) {
+  private async isExistsCashier(email: string, login: string, iin: string) {
     const isExistLogin = await this.prisma.cashier.findUnique({
       where: {
         login,
@@ -69,8 +76,15 @@ export class AuthService {
       },
     });
 
+    const isExistIin = await this.prisma.cashier.findUnique({
+      where: {
+        iin,
+      },
+    });
+
     if (isExistEmail) throw new BadRequestException("Email already exists");
     if (isExistLogin) throw new BadRequestException("Login already exists");
+    if (isExistIin) throw new BadRequestException("Iin already exists");
   }
 
   private async issueTokens(CashierId: number) {

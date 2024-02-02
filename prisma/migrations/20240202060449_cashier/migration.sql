@@ -23,3 +23,6 @@ CREATE UNIQUE INDEX "Cashier_login_key" ON "Cashier"("login");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Cashier_email_key" ON "Cashier"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Cashier_iin_key" ON "Cashier"("iin");

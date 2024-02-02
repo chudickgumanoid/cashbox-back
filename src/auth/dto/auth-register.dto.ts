@@ -12,10 +12,6 @@ export class AuthRegisterDto {
   email: string;
 
   @IsString()
-  @MinLength(4, { message: "Min length name 4 symbols" })
-  password: string;
-
-  @IsString()
   first_name: string;
 
   @IsString()
