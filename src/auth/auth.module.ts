@@ -7,6 +7,8 @@ import { PrismaService } from "src/prisma.service";
 import { getJwtConfig } from "src/config/jwt.config";
 import { JwtStrategy } from "./jwt.strategy";
 import { MailModule } from "src/mail/mail.module";
+import { CashierCommonService } from "src/cashier/cashier-common.service";
+import { CashierService } from "src/cashier/cashier.service";
 
 @Module({
   imports: [
@@ -19,6 +21,12 @@ import { MailModule } from "src/mail/mail.module";
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService, JwtStrategy],
+  providers: [
+    AuthService,
+    PrismaService,
+    JwtStrategy,
+    CashierService,
+    CashierCommonService,
+  ],
 })
 export class AuthModule {}

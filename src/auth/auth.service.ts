@@ -2,50 +2,74 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import * as argon2 from "argon2";
 import { Cashier } from "@prisma/client";
 import { PrismaService } from "./../prisma.service";
 import { AuthRegisterDto } from "./dto/auth-register.dto";
 import { AuthLoginDto } from "./dto/auth-login.dto";
-import { returnCashierFields } from "./return-cashier-object";
+import { returnCashierShortFields } from "./return-cashier-object";
 import { MailService } from "src/mail/mail.service";
 import { randomPassword } from "src/helper/randomPassword";
+import { CashierCommonService } from "src/cashier/cashier-common.service";
+import { CashierService } from "src/cashier/cashier.service";
+import { hash, verify } from "argon2";
 
 @Injectable()
 export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwt: JwtService,
-    private mail: MailService
+    private mail: MailService,
+    private cashier: CashierService,
+    private cashierCommon: CashierCommonService,
   ) {}
 
   async login(dto: AuthLoginDto) {
     const cashier = await this.validateCashier(dto);
-    const token = await this.issueTokens(cashier.id);
-    // await this.mail.sendCashierPassword(cashier);
+    const tokens = await this.issueTokens(cashier.id);
 
     return {
-      cashier: returnCashierFields(cashier),
-      ...token,
+      cashier: returnCashierShortFields(cashier),
+      ...tokens,
     };
   }
 
   async register(dto: AuthRegisterDto) {
-    await this.isExistsCashier(dto.email, dto.login, dto.iin);
+    await this.cashierCommon.isExistsCashier(dto.email, dto.login, dto.iin);
 
     const password: string = randomPassword(16);
     const cashier = await this.createCashier(dto, password);
 
+    // TODO: transaction if error message
     await this.mail.sendCashierPassword(cashier, password);
 
-    const token = await this.issueTokens(cashier.id);
+    const tokens = await this.issueTokens(cashier.id);
 
     return {
-      cashier: returnCashierFields(cashier),
-      ...token,
+      cashier: returnCashierShortFields(cashier),
+      ...tokens,
     };
+  }
+
+  async getNewToken(refreshToken: string) {
+    try {
+      const res = await this.jwt.verifyAsync(refreshToken);
+      if (!res) {
+        throw new UnauthorizedException("Invalid refresh tokens");
+      }
+
+      const cashier = await this.cashier.getCashierByID(res.id);
+      const tokens = await this.issueTokens(cashier.id);
+
+      return {
+        cashier: returnCashierShortFields(cashier),
+        ...tokens,
+      };
+    } catch (error) {
+      throw new BadRequestException("Invalid signature");
+    }
   }
 
   private async createCashier(dto: AuthRegisterDto, password: string) {
@@ -58,40 +82,17 @@ export class AuthService {
         iin: dto.iin,
         email: dto.email,
         status: "INACTIVE",
-        password: await argon2.hash(password),
+        password: await hash(password),
       },
     });
-  }
-
-  private async isExistsCashier(email: string, login: string, iin: string) {
-    const isExistLogin = await this.prisma.cashier.findUnique({
-      where: {
-        login,
-      },
-    });
-
-    const isExistEmail = await this.prisma.cashier.findUnique({
-      where: {
-        email,
-      },
-    });
-
-    const isExistIin = await this.prisma.cashier.findUnique({
-      where: {
-        iin,
-      },
-    });
-
-    if (isExistEmail) throw new BadRequestException("Email already exists");
-    if (isExistLogin) throw new BadRequestException("Login already exists");
-    if (isExistIin) throw new BadRequestException("Iin already exists");
   }
 
   private async issueTokens(CashierId: number) {
     const data = { id: CashierId };
     const accessToken = this.jwt.sign(data, { expiresIn: "10m" });
+    const refreshToken = this.jwt.sign(data, { expiresIn: "1d" });
 
-    return { accessToken };
+    return { accessToken, refreshToken };
   }
 
   private async validateCashier(dto: AuthLoginDto) {
@@ -107,7 +108,7 @@ export class AuthService {
 
     if (!cashier) throw new NotFoundException("Cashier not found");
 
-    const isValid = await argon2.verify(cashier.password, dto.password);
+    const isValid = await verify(cashier.password, dto.password);
 
     if (!isValid) throw new BadRequestException("Invalid password");
 

@@ -17,12 +17,123 @@ model Cashier {
   patronymic String
   iin        String            @unique
   status     EnumCashierStatus @default(INACTIVE)
-  createdAt  DateTime          @default(now()) @map("created_at")
-  updatedAt  DateTime          @updatedAt @map("updated_at")
+  cashboxes  Cashbox[]
+  addresses  Address[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 }
 
 enum EnumCashierStatus {
   ACTIVE
   BLOCKED
   INACTIVE
+}
+
+model Cashbox {
+  id              Int               @id @default(autoincrement())
+  title           String
+  iin             Cashier           @relation(fields: [cashierId], references: [id])
+  serialNumber    String            @unique @map("serial_number")
+  address         Address           @relation(fields: [addressId], references: [id])
+  cashierId       Int
+  addressId       Int
+  config          CashboxConfig     @relation(fields: [cashboxConfigId], references: [id])
+  cashboxConfigId Int               @map("cashbox_config_id")
+  status          EnumCashboxStatus @default(ACTIVE)
+  ticket          Ticket[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+enum EnumCashboxStatus {
+  ACTIVE
+  BLOCKED
+}
+
+model CashboxConfig {
+  id                 Int          @id @default(autoincrement())
+  autoCloseTime      String       @map("auto_close_time")
+  cashSum            Int          @map("cash_sum")
+  defaultMeasureUnit Measure      @relation(fields: [defaultMeasureId], references: [id])
+  discountType       EnumDiscount @default(CASH) @map("discount_type")
+  markupType         EnumMarkup   @default(CASH) @map("matkup_type")
+  emailForReport     String?      @map("email_for_report")
+  isOpen             Boolean      @map("is_open")
+  maxSum             Int          @map("max_sum")
+  numberShift        Int          @map("number_shift")
+  openTime           DateTime     @map("open_time")
+  closeTime          DateTime     @map("close_time")
+  pincode            String       @default("0000")
+  paymentType        EnumPayment  @default(CASH) @map("payment_type")
+  ticketNumber       Int          @map("ticket_number")
+  vat                EnumVat      @default(VAT_12)
+  withdrawal         Boolean      @default(false)
+  defaultMeasureId   Int          @map("default_measure_id")
+  cashbox            Cashbox[]
+}
+
+enum EnumPayment {
+  CASH
+  CARD
+  MOBILE
+}
+
+enum EnumDiscount {
+  PERCENT
+  CASH
+}
+
+enum EnumMarkup {
+  PERCENT
+  CASH
+}
+
+enum EnumVat {
+  VAT_12
+  NO_VAT
+}
+
+model Measure {
+  id            Int             @id @default(autoincrement())
+  name          String
+  fullName      String          @map("full_name")
+  code          Int             @unique
+  cashboxConfig CashboxConfig[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model Address {
+  id        Int       @id @default(autoincrement())
+  title     String
+  address   String
+  cashbox   Cashbox[]
+  Cashier   Cashier?  @relation(fields: [cashierId], references: [id])
+  cashierId Int?      @map("cashier_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+model Ticket {
+  id        Int                 @id @default(autoincrement())
+  sum       Int
+  date      DateTime
+  operation EnumTicketOperation
+  data      Json
+  cashbox   Cashbox             @relation(fields: [cashboxId], references: [id])
+  cashboxId Int                 @map("cashbox_id")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+}
+
+enum EnumTicketOperation {
+  BUY
+  SELL
+  BUY_RETURN
+  SELL_RETURN
 }
