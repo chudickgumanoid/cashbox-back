@@ -6,6 +6,7 @@ import { AuthModule } from "./auth/auth.module";
 import { ConfigModule } from "@nestjs/config";
 import { MailModule } from "./mail/mail.module";
 import { CashierModule } from "./cashier/cashier.module";
+import { MeasureModule } from './measure/measure.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { CashierModule } from "./cashier/cashier.module";
     AuthModule,
     MailModule,
     CashierModule,
+    MeasureModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

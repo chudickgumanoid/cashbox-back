@@ -9,7 +9,7 @@ export class CashierCommonService {
     email: string,
     login: string,
     iin: string,
-    currentCashierId?: number,
+    currentCashierId?: number
   ) {
     const isExistLogin = await this.prisma.cashier.findUnique({
       where: {
@@ -32,22 +32,16 @@ export class CashierCommonService {
     if (
       isExistEmail &&
       (!currentCashierId || currentCashierId !== isExistEmail.id)
-    ) {
+    )
       throw new BadRequestException("Email already exists");
-    }
 
     if (
       isExistLogin &&
       (!currentCashierId || currentCashierId !== isExistLogin.id)
-    ) {
+    )
       throw new BadRequestException("Login already exists");
-    }
 
-    if (
-      isExistIin &&
-      (!currentCashierId || currentCashierId !== isExistIin.id)
-    ) {
+    if (isExistIin && (!currentCashierId || currentCashierId !== isExistIin.id))
       throw new BadRequestException("Iin already exists");
-    }
   }
 }
