@@ -7,6 +7,7 @@ import { ConfigModule } from "@nestjs/config";
 import { MailModule } from "./mail/mail.module";
 import { CashierModule } from "./cashier/cashier.module";
 import { MeasureModule } from './measure/measure.module';
+import { AddressModule } from './address/address.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { MeasureModule } from './measure/measure.module';
     MailModule,
     CashierModule,
     MeasureModule,
+    AddressModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

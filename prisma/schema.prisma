@@ -36,8 +36,8 @@ model Cashbox {
   iin             Cashier           @relation(fields: [cashierId], references: [id])
   serialNumber    String            @unique @map("serial_number")
   address         Address           @relation(fields: [addressId], references: [id])
-  cashierId       Int
-  addressId       Int
+  cashierId       Int               @map("cashier_id")
+  addressId       Int               @map("address_id")
   config          CashboxConfig     @relation(fields: [cashboxConfigId], references: [id])
   cashboxConfigId Int               @map("cashbox_config_id")
   status          EnumCashboxStatus @default(ACTIVE)

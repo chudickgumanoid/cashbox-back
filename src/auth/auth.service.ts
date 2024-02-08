@@ -89,7 +89,7 @@ export class AuthService {
 
   private async issueTokens(CashierId: number) {
     const data = { id: CashierId };
-    const accessToken = this.jwt.sign(data, { expiresIn: "10m" });
+    const accessToken = this.jwt.sign(data, { expiresIn: "30m" });
     const refreshToken = this.jwt.sign(data, { expiresIn: "1d" });
 
     return { accessToken, refreshToken };
