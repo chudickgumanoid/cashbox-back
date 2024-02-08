@@ -3,6 +3,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  NotFoundException,
 } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { MeasureDto } from "./dto/create-measure.dto";
@@ -77,7 +78,7 @@ export class MeasureService {
     const isExists = await this.prisma.measure.findUnique({
       where: { id },
     });
-    if (!isExists) throw new BadRequestException("Measure not found");
+    if (!isExists) throw new NotFoundException("Measure not found");
     return isExists;
   }
 

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { CreateAddressDto } from "./dto/create-address.dto";
 import { returnAddressObject } from "./return-address.object";
@@ -50,7 +50,7 @@ export class AddressService {
     const address = await this.prisma.address.findUnique({ where: { id } });
 
     if (!address) {
-      throw new BadRequestException("Address not found");
+      throw new NotFoundException("Address not found");
     }
     return address;
   }
