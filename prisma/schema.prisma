@@ -99,7 +99,7 @@ model Measure {
   id            Int             @id @default(autoincrement())
   name          String
   fullName      String          @map("full_name")
-  code          Int             @unique
+  code          String          @unique
   cashboxConfig CashboxConfig[]
 
   createdAt DateTime @default(now()) @map("created_at")

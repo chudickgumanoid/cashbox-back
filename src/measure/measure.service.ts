@@ -67,12 +67,12 @@ export class MeasureService {
     return isExists;
   }
 
-  private async isExistsCode(code: number): Promise<void> {
+  private async isExistsCode(code: string): Promise<void> {
     const isExistsCode = await this.findUniqCode(code);
     if (isExistsCode) throw new BadRequestException("Code already exists");
   }
 
-  private async findUniqCode(code: number): Promise<Measure | null> {
+  private async findUniqCode(code: string): Promise<Measure | null> {
     return await this.prisma.measure.findUnique({ where: { code } });
   }
 }

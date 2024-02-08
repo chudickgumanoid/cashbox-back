@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Measure" ALTER COLUMN "code" SET DATA TYPE TEXT;
