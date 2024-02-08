@@ -72,6 +72,8 @@ model CashboxConfig {
   withdrawal         Boolean      @default(false)
   defaultMeasureId   Int          @map("default_measure_id")
   cashbox            Cashbox[]
+
+  @@map("Cashbox_config")
 }
 
 enum EnumPayment {
@@ -111,7 +113,7 @@ model Address {
   title     String
   address   String
   cashbox   Cashbox[]
-  Cashier   Cashier?  @relation(fields: [cashierId], references: [id])
+  cashier   Cashier?  @relation(fields: [cashierId], references: [id])
   cashierId Int?      @map("cashier_id")
 
   createdAt DateTime @default(now()) @map("created_at")

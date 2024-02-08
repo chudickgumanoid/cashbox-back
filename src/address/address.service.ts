@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { CreateAddressDto } from "./dto/create-address.dto";
 import { returnAddressObject } from "./return-address.object";
@@ -21,9 +21,12 @@ export class AddressService {
   async create(id: number, dto: CreateAddressDto) {
     return await this.prisma.address.create({
       data: {
-        title: dto.title,
-        address: dto.address,
-        cashierId: id,
+        ...dto,
+        cashier: {
+          connect: {
+            id,
+          },
+        },
       },
       select: {
         ...returnAddressObject,
@@ -37,8 +40,7 @@ export class AddressService {
     return await this.prisma.address.update({
       where: { id },
       data: {
-        title: dto.title,
-        address: dto.address,
+        ...dto,
       },
       select: {
         ...returnAddressObject,
