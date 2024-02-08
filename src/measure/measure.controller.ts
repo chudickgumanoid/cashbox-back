@@ -28,6 +28,7 @@ export class MeasureController {
   }
 
   @Patch(":id")
+  @UsePipes(new ValidationPipe())
   async update(@Param("id") id: number, @Body() dto: MeasureDto) {
     return this.measureService.update(+id, dto);
   }

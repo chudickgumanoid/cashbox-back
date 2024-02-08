@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { CreateAddressDto } from "./dto/create-address.dto";
+import { returnAddressObject } from "./return-address.object";
 
 @Injectable()
 export class AddressService {
@@ -8,7 +9,13 @@ export class AddressService {
   // TODO: мб прикрутить адресный регистр
   // https://dev.address-registry.itanalytics.kz/
   async get(id: number) {
-    return this.prisma.address.findMany({ where: { id } });
+    console.log(id, "id");
+    return this.prisma.address.findMany({
+      where: { cashierId: id },
+      select: {
+        ...returnAddressObject,
+      },
+    });
   }
 
   async create(id: number, dto: CreateAddressDto) {
@@ -17,6 +24,9 @@ export class AddressService {
         title: dto.title,
         address: dto.address,
         cashierId: id,
+      },
+      select: {
+        ...returnAddressObject,
       },
     });
   }
@@ -29,6 +39,9 @@ export class AddressService {
       data: {
         title: dto.title,
         address: dto.address,
+      },
+      select: {
+        ...returnAddressObject,
       },
     });
   }

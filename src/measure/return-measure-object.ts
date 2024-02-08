@@ -1,4 +1,4 @@
-import { Measure } from "@prisma/client";
+import { Measure, Prisma } from "@prisma/client";
 
 export const returnMeasureShortFields = (measure: Measure) => {
   return {
@@ -7,4 +7,11 @@ export const returnMeasureShortFields = (measure: Measure) => {
     full_name: measure.fullName,
     code: measure.code,
   };
+};
+
+export const returnMeasureObject: Prisma.MeasureSelect = {
+  id: true,
+  code: true,
+  name: true,
+  fullName: true,
 };
