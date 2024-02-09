@@ -7,5 +7,5 @@ export const CurrentCashier = createParamDecorator(
     const cashier = request.user;
 
     return data ? cashier[data] : cashier;
-  },
+  }
 );

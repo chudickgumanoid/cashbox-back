@@ -8,6 +8,7 @@ import { MailModule } from "./mail/mail.module";
 import { CashierModule } from "./cashier/cashier.module";
 import { MeasureModule } from './measure/measure.module';
 import { AddressModule } from './address/address.module';
+import { CashboxModule } from './cashbox/cashbox.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AddressModule } from './address/address.module';
     CashierModule,
     MeasureModule,
     AddressModule,
+    CashboxModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

@@ -33,7 +33,7 @@ enum EnumCashierStatus {
 model Cashbox {
   id              Int               @id @default(autoincrement())
   title           String
-  iin             Cashier           @relation(fields: [cashierId], references: [id])
+  iin             String
   serialNumber    String            @unique @map("serial_number")
   address         Address           @relation(fields: [addressId], references: [id])
   cashierId       Int               @map("cashier_id")
@@ -42,6 +42,7 @@ model Cashbox {
   cashboxConfigId Int               @map("cashbox_config_id")
   status          EnumCashboxStatus @default(ACTIVE)
   ticket          Ticket[]
+  cashier         Cashier           @relation(fields: [cashierId], references: [id])
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -55,14 +56,14 @@ enum EnumCashboxStatus {
 model CashboxConfig {
   id                 Int          @id @default(autoincrement())
   autoCloseTime      String       @map("auto_close_time")
-  cashSum            Int          @map("cash_sum")
+  cashSum            Int          @default(0) @map("cash_sum")
   defaultMeasureUnit Measure      @relation(fields: [defaultMeasureId], references: [id])
   discountType       EnumDiscount @default(CASH) @map("discount_type")
-  markupType         EnumMarkup   @default(CASH) @map("matkup_type")
+  markupType         EnumMarkup   @default(CASH) @map("markup_type")
   emailForReport     String?      @map("email_for_report")
-  isOpen             Boolean      @map("is_open")
-  maxSum             Int          @map("max_sum")
-  numberShift        Int          @map("number_shift")
+  isOpen             Boolean      @default(false) @map("is_open")
+  maxSum             Int          @default(3000000) @map("max_sum")
+  numberShift        Int          @default(0) @map("number_shift")
   openTime           DateTime     @map("open_time")
   closeTime          DateTime     @map("close_time")
   pincode            String       @default("0000")

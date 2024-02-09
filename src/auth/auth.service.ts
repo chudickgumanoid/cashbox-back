@@ -82,8 +82,7 @@ export class AuthService {
         iin: dto.iin,
         email: dto.email,
         status: "INACTIVE",
-        password: "1234",
-        // password: await hash(password),
+        password: await hash(password),
       },
     });
   }
